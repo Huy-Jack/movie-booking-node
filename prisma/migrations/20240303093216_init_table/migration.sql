@@ -82,6 +82,16 @@ CREATE TABLE "carousel" (
     CONSTRAINT "carousel_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "price" (
+    "id" TEXT NOT NULL DEFAULT uuid_generate_v4(),
+    "amount" DECIMAL(10,2) NOT NULL,
+    "seatId" TEXT NOT NULL,
+    "movieId" TEXT NOT NULL,
+
+    CONSTRAINT "price_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "user_user_name_key" ON "user"("user_name");
 
@@ -111,3 +121,9 @@ ALTER TABLE "ticket" ADD CONSTRAINT "ticket_showtimeId_fkey" FOREIGN KEY ("showt
 
 -- AddForeignKey
 ALTER TABLE "banner" ADD CONSTRAINT "banner_carouselId_fkey" FOREIGN KEY ("carouselId") REFERENCES "carousel"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "price" ADD CONSTRAINT "price_seatId_fkey" FOREIGN KEY ("seatId") REFERENCES "seat"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "price" ADD CONSTRAINT "price_movieId_fkey" FOREIGN KEY ("movieId") REFERENCES "movie"("id") ON DELETE CASCADE ON UPDATE CASCADE;

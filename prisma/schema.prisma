@@ -35,6 +35,7 @@ model Movie {
   title       String     @db.VarChar(50)
   genre       String     @db.VarChar(50)
   showTime    Showtime[]
+  Price       Price[]
 
   @@map("movie")
 }
@@ -55,6 +56,7 @@ model Seat {
   cinemaId    String
   cinema      Cinema   @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
   ticket      Ticket[]
+  price       Price[]
 
   @@map("seat")
 }
@@ -98,4 +100,15 @@ model Carousel {
   banners Banner[]
 
   @@map("carousel")
+}
+
+model Price {
+  id      String  @id @default(dbgenerated("uuid_generate_v4()"))
+  amount  Decimal @db.Decimal(10, 2)
+  seatId  String
+  seat    Seat    @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  movieId String
+  movie   Movie   @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  @@map("price")
 }
