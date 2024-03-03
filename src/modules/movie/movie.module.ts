@@ -8,9 +8,7 @@ import { UserController } from '../user/user.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,

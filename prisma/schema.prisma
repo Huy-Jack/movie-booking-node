@@ -86,9 +86,8 @@ model Ticket {
 }
 
 model Banner {
-  id         String @id @db.VarChar(255)
-  url        String @db.VarChar(255)
-  carouselId String
+  id  String @id @db.VarChar(255)
+  url String @db.VarChar(255)
 
   @@map("banner")
 }
