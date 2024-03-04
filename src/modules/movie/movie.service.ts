@@ -53,6 +53,13 @@ export class MovieService {
     }
   }
 
+  async getOngoingMovies(): Promise<Movie[]> {
+    return this.prisma.movie.findMany({
+      where: {
+        ongoing: true,
+      },
+    });
+  }
   async getAllMovies(): Promise<Movie[]> {
     return this.prisma.movie.findMany();
   }

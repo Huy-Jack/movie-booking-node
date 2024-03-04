@@ -14,23 +14,23 @@ CREATE TABLE "user" (
 
 -- CreateTable
 CREATE TABLE "movie" (
-    "id" VARCHAR(50) NOT NULL,
+    "id" VARCHAR(255) NOT NULL,
     "description" TEXT NOT NULL,
     "trailer" TEXT NOT NULL,
     "ongoing" BOOLEAN NOT NULL,
     "rating" DECIMAL(3,1) NOT NULL,
     "release_date" DATE NOT NULL,
     "poster" TEXT NOT NULL,
-    "title" VARCHAR(50) NOT NULL,
-    "genre" VARCHAR(50) NOT NULL,
+    "title" VARCHAR(255) NOT NULL,
+    "genre" VARCHAR(255) NOT NULL,
 
     CONSTRAINT "movie_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "cinema" (
-    "id" VARCHAR(10) NOT NULL,
-    "cinema_number" VARCHAR(10) NOT NULL,
+    "id" VARCHAR(50) NOT NULL,
+    "cinema_number" VARCHAR(50) NOT NULL,
 
     CONSTRAINT "cinema_pkey" PRIMARY KEY ("id")
 );
@@ -48,7 +48,7 @@ CREATE TABLE "seat" (
 
 -- CreateTable
 CREATE TABLE "showtime" (
-    "id" VARCHAR(50) NOT NULL,
+    "id" VARCHAR(255) NOT NULL,
     "start_time" TIMESTAMPTZ NOT NULL,
     "end_time" TIMESTAMPTZ NOT NULL,
     "cinemaId" TEXT NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE "ticket" (
 -- CreateTable
 CREATE TABLE "banner" (
     "id" VARCHAR(255) NOT NULL,
-    "url" VARCHAR(255) NOT NULL,
+    "url" VARCHAR(500) NOT NULL,
 
     CONSTRAINT "banner_pkey" PRIMARY KEY ("id")
 );

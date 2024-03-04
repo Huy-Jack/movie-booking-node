@@ -25,23 +25,23 @@ model User {
 }
 
 model Movie {
-  id          String     @id @db.VarChar(50)
+  id          String     @id @db.VarChar(255)
   description String     @db.Text
   trailer     String     @db.Text
   ongoing     Boolean    @db.Boolean
   rating      Decimal    @db.Decimal(3, 1)
   releaseDate DateTime   @map("release_date") @db.Date
   poster      String     @db.Text
-  title       String     @db.VarChar(50)
-  genre       String     @db.VarChar(50)
+  title       String     @db.VarChar(255)
+  genre       String     @db.VarChar(255)
   showTime    Showtime[]
 
   @@map("movie")
 }
 
 model Cinema {
-  id           String     @id @db.VarChar(10)
-  cinemaNumber String     @map("cinema_number") @db.VarChar(10)
+  id           String     @id @db.VarChar(50)
+  cinemaNumber String     @map("cinema_number") @db.VarChar(50)
   seats        Seat[]
   showTime     Showtime[]
 
@@ -61,7 +61,7 @@ model Seat {
 }
 
 model Showtime {
-  id       String   @id @db.VarChar(50)
+  id       String   @id @db.VarChar(255)
   start    DateTime @map("start_time") @db.Timestamptz()
   end      DateTime @map("end_time") @db.Timestamptz()
   cinemaId String
@@ -87,7 +87,7 @@ model Ticket {
 
 model Banner {
   id  String @id @db.VarChar(255)
-  url String @db.VarChar(255)
+  url String @db.VarChar(500)
 
   @@map("banner")
 }

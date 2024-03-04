@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -44,21 +48,29 @@ export class AuthService {
     }
   }
   async signin(dto: { username: string; password: string }) {
-    // find user by email
-    const user = await this.prisma.user.findUnique({
-      where: {
-        userName: dto.username,
-      },
-    });
-    // if user doesn't exist
-    if (!user) throw new ForbiddenException('Username is incorrect');
-    // compares password
-    const pwMatches = await argon.verify(user.hash, dto.password);
-    // if password incorrects, throw exception
-    if (!pwMatches) throw new ForbiddenException('Password incorrect');
-    // send back user
-    return this.signToken(user.id, user.email);
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          userName: dto.username,
+        },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid username or password');
+      }
+
+      const pwMatches = await argon.verify(user.hash, dto.password);
+
+      if (!pwMatches) {
+        throw new UnauthorizedException('Invalid password');
+      }
+
+      return this.signToken(user.id, user.email);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid username or password');
+    }
   }
+
   async signToken(
     userId: string,
     email: string,
