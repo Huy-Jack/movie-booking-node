@@ -58,6 +58,15 @@ CREATE TABLE "showtime" (
 );
 
 -- CreateTable
+CREATE TABLE "showtime_seat" (
+    "is_available" TEXT NOT NULL,
+    "showtimeId" TEXT NOT NULL,
+    "seatId" TEXT NOT NULL,
+
+    CONSTRAINT "showtime_seat_pkey" PRIMARY KEY ("showtimeId","seatId")
+);
+
+-- CreateTable
 CREATE TABLE "ticket" (
     "id" TEXT NOT NULL DEFAULT uuid_generate_v4(),
     "userName" TEXT NOT NULL,
@@ -92,6 +101,12 @@ ALTER TABLE "showtime" ADD CONSTRAINT "showtime_cinemaId_fkey" FOREIGN KEY ("cin
 
 -- AddForeignKey
 ALTER TABLE "showtime" ADD CONSTRAINT "showtime_movieId_fkey" FOREIGN KEY ("movieId") REFERENCES "movie"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "showtime_seat" ADD CONSTRAINT "showtime_seat_showtimeId_fkey" FOREIGN KEY ("showtimeId") REFERENCES "showtime"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "showtime_seat" ADD CONSTRAINT "showtime_seat_seatId_fkey" FOREIGN KEY ("seatId") REFERENCES "seat"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ticket" ADD CONSTRAINT "ticket_userName_fkey" FOREIGN KEY ("userName") REFERENCES "user"("user_name") ON DELETE RESTRICT ON UPDATE CASCADE;

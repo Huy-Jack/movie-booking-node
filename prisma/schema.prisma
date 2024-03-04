@@ -49,28 +49,42 @@ model Cinema {
 }
 
 model Seat {
-  id          String   @id @db.VarChar(255)
-  seatNumber  String   @map("seat_number") @db.VarChar(255)
-  isAvailable String   @map("is_available")
-  price       Decimal  @db.Decimal(10, 2)
+  id          String         @id @db.VarChar(255)
+  seatNumber  String         @map("seat_number") @db.VarChar(255)
+  isAvailable String         @map("is_available")
+  price       Decimal        @db.Decimal(10, 2)
   cinemaId    String
-  cinema      Cinema   @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
+  cinema      Cinema         @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
   ticket      Ticket[]
+  showtimes   ShowtimeSeat[]
 
   @@map("seat")
 }
 
 model Showtime {
-  id       String   @id @db.VarChar(255)
-  start    DateTime @map("start_time") @db.Timestamptz()
-  end      DateTime @map("end_time") @db.Timestamptz()
-  cinemaId String
-  cinema   Cinema   @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
-  movieId  String
-  movie    Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
-  ticket   Ticket[]
+  id            String         @id @db.VarChar(255)
+  start         DateTime       @map("start_time") @db.Timestamptz()
+  end           DateTime       @map("end_time") @db.Timestamptz()
+  cinemaId      String
+  cinema        Cinema         @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
+  movieId       String
+  movie         Movie          @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  ticket        Ticket[]
+  showtimeSeats ShowtimeSeat[]
 
   @@map("showtime")
+}
+
+model ShowtimeSeat {
+  isAvailable String @map("is_available")
+
+  showtimeId String
+  showtime   Showtime @relation(fields: [showtimeId], references: [id], onDelete: Cascade)
+  seatId     String
+  seat       Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+
+  @@id([showtimeId, seatId])
+  @@map("showtime_seat")
 }
 
 model Ticket {
