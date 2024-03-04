@@ -2,7 +2,7 @@ import { Controller, Get, Headers } from '@nestjs/common';
 import { Banner } from '@prisma/client';
 import { BannerService } from './banner.service';
 
-@Controller('api/banner')
+@Controller('banner')
 export class BannerController {
   constructor(private bannerService: BannerService) {}
 

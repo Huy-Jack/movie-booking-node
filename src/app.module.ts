@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserController } from './modules/user/user.controller';
 import { MovieModule } from './modules/movie/movie.module';
 import { BannerModule } from './modules/banner/banner.module';
+import { ShowtimeModule } from './modules/showtime/showtime.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { BannerModule } from './modules/banner/banner.module';
     PrismaModule,
     MovieModule,
     BannerModule,
+    ShowtimeModule,
   ],
   controllers: [UserController],
   providers: [],
