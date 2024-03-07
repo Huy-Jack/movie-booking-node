@@ -7,6 +7,7 @@ import { UserController } from './modules/user/user.controller';
 import { MovieModule } from './modules/movie/movie.module';
 import { BannerModule } from './modules/banner/banner.module';
 import { ShowtimeModule } from './modules/showtime/showtime.module';
+import { SeatModule } from './modules/seat/seat.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ShowtimeModule } from './modules/showtime/showtime.module';
     MovieModule,
     BannerModule,
     ShowtimeModule,
+    SeatModule,
   ],
   controllers: [UserController],
   providers: [],
