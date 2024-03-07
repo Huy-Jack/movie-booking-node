@@ -3,7 +3,7 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Movie } from '@prisma/client';
 import { CreateMovieDto } from './dto/movie.dto';
@@ -43,24 +43,70 @@ export class MovieService {
         throw new UnauthorizedException(
           'Invalid or expired authentication token',
         );
+      } else if (error instanceof TokenExpiredError) {
+        // Handle token expiration
+        throw new UnauthorizedException('Token has expired');
       } else if (error.code === 'P2002') {
         throw new BadRequestException(
           'Duplicate movieId or other validation error.',
         );
       } else {
-        throw error;
+        // Log unexpected errors
+        console.error('Unexpected error during token verification', error);
+        throw new UnauthorizedException('Unexpected authentication error');
       }
     }
   }
 
-  async getOngoingMovies(): Promise<Movie[]> {
-    return this.prisma.movie.findMany({
-      where: {
-        ongoing: true,
-      },
-    });
+  async getOngoingMovies(userToken: string): Promise<Movie[]> {
+    try {
+      if (!userToken) {
+        throw new UnauthorizedException('JWT token missing');
+      }
+
+      this.jwtService.verify(userToken);
+      return this.prisma.movie.findMany({
+        where: {
+          ongoing: true,
+        },
+      });
+    } catch (error) {
+      if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException(
+          'Invalid or expired authentication token',
+        );
+      } else if (error instanceof TokenExpiredError) {
+        // Handle token expiration
+        throw new UnauthorizedException('Token has expired');
+      } else {
+        // Log unexpected errors
+        console.error('Unexpected error during token verification', error);
+        throw new UnauthorizedException('Unexpected authentication error');
+      }
+    }
   }
-  async getAllMovies(): Promise<Movie[]> {
-    return this.prisma.movie.findMany();
+
+  async getAllMovies(userToken: string): Promise<Movie[]> {
+    try {
+      if (!userToken) {
+        throw new UnauthorizedException('JWT token missing');
+      }
+
+      this.jwtService.verify(userToken);
+      return this.prisma.movie.findMany({});
+    } catch (error) {
+      if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException(
+          'Invalid or expired authentication token',
+        );
+      } else if (error instanceof TokenExpiredError) {
+        // Handle token expiration
+        throw new UnauthorizedException('Token has expired');
+      } else {
+        // Log unexpected errors
+        console.error('Unexpected error during token verification', error);
+        throw new UnauthorizedException('Unexpected authentication error');
+      }
+    }
   }
 }
