@@ -39,21 +39,24 @@ export class MovieController {
   }
 
   @Get('get-all')
-  async getMovies(
-    @Query('ongoing') ongoing?: boolean,
-    @Headers('Authorization') userToken?: string,
-  ): Promise<Movie[]> {
-    try {
-      if (ongoing) {
-        if (!userToken) {
-          throw new UnauthorizedException('JWT token missing');
-        }
-        return await this.movieService.getOngoingMovies(userToken);
-      } else {
-        return await this.movieService.getAllMovies(userToken);
-      }
-    } catch (error) {
-      throw error;
+async getMovies(
+  @Query('ongoing') ongoing: string,
+  @Headers('Authorization') userToken?: string,
+): Promise<Movie[]> {
+  try {
+    if (!userToken) {
+      throw new UnauthorizedException('JWT token missing');
     }
+    const isOngoing = ongoing === 'true';
+
+    if (isOngoing) {
+      return await this.movieService.getOngoingMovies(userToken);
+    } else {
+      return await this.movieService.getUpcomingMovies(userToken);
+    }
+  } catch (error) {
+    throw error;
   }
+}
+
 }

@@ -86,14 +86,18 @@ export class MovieService {
     }
   }
 
-  async getAllMovies(userToken: string): Promise<Movie[]> {
+  async getUpcomingMovies(userToken: string): Promise<Movie[]> {
     try {
       if (!userToken) {
         throw new UnauthorizedException('JWT token missing');
       }
 
       this.jwtService.verify(userToken);
-      return this.prisma.movie.findMany({});
+      return this.prisma.movie.findMany({
+        where: {
+          ongoing: false,
+        },
+      });
     } catch (error) {
       if (error instanceof JsonWebTokenError) {
         throw new UnauthorizedException(
