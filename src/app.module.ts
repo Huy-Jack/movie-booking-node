@@ -8,6 +8,7 @@ import { MovieModule } from './modules/movie/movie.module';
 import { BannerModule } from './modules/banner/banner.module';
 import { ShowtimeModule } from './modules/showtime/showtime.module';
 import { SeatModule } from './modules/seat/seat.module';
+import { BookingModule } from './modules/booking/booking.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { SeatModule } from './modules/seat/seat.module';
     BannerModule,
     ShowtimeModule,
     SeatModule,
+    BookingModule,
   ],
   controllers: [UserController],
   providers: [],
