@@ -108,7 +108,30 @@ export class MovieService {
         throw new UnauthorizedException('Token has expired');
       } else {
         // Log unexpected errors
-        console.error('Unexpected error during token verification', error);
+        throw new UnauthorizedException('Unexpected authentication error');
+      }
+    }
+  }
+
+  async getMovieById(userToken: string, movieId: string): Promise<Movie> {
+    try {
+      if (!userToken) throw new UnauthorizedException('JWT token missing');
+      this.jwtService.verify(userToken);
+      return this.prisma.movie.findUnique({
+        where: {
+          id: movieId,
+        },
+      });
+    } catch (error) {
+      if (error instanceof JsonWebTokenError) {
+        throw new UnauthorizedException(
+          'Invalid or expired authentication token',
+        );
+      } else if (error instanceof TokenExpiredError) {
+        // Handle token expiration
+        throw new UnauthorizedException('Token has expired');
+      } else {
+        // Log unexpected errors
         throw new UnauthorizedException('Unexpected authentication error');
       }
     }

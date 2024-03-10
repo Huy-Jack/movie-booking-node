@@ -6,6 +6,7 @@ import {
   Headers,
   UnauthorizedException,
   Query,
+  Param,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto';
@@ -39,24 +40,38 @@ export class MovieController {
   }
 
   @Get('get-all')
-async getMovies(
-  @Query('ongoing') ongoing: string,
-  @Headers('Authorization') userToken?: string,
-): Promise<Movie[]> {
-  try {
-    if (!userToken) {
-      throw new UnauthorizedException('JWT token missing');
-    }
-    const isOngoing = ongoing === 'true';
+  async getMovies(
+    @Query('ongoing') ongoing: string,
+    @Headers('Authorization') userToken?: string,
+  ): Promise<Movie[]> {
+    try {
+      if (!userToken) {
+        throw new UnauthorizedException('JWT token missing');
+      }
+      const isOngoing = ongoing === 'true';
 
-    if (isOngoing) {
-      return await this.movieService.getOngoingMovies(userToken);
-    } else {
-      return await this.movieService.getUpcomingMovies(userToken);
+      if (isOngoing) {
+        return await this.movieService.getOngoingMovies(userToken);
+      } else {
+        return await this.movieService.getUpcomingMovies(userToken);
+      }
+    } catch (error) {
+      throw error;
     }
-  } catch (error) {
-    throw error;
   }
-}
 
+  @Get('/:id')
+  async getMovieById(
+    @Param('id') id: string,
+    @Headers('Authorization') userToken?: string,
+  ): Promise<Movie> {
+    try {
+      if (!userToken) {
+        throw new UnauthorizedException('JWT token missing');
+      }
+      return await this.movieService.getMovieById(userToken, id);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
