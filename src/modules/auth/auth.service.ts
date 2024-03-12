@@ -1,10 +1,12 @@
 import {
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from 'argon2';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -47,6 +49,7 @@ export class AuthService {
       }
     }
   }
+
   async signin(dto: { username: string; password: string }) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -74,7 +77,7 @@ export class AuthService {
   async signToken(
     userId: string,
     email: string,
-  ): Promise<{ access_token: string; meaningful_msg: string }> {
+  ): Promise<{ access_token: string; meaningful_msg: string; user: User }> {
     const payLoad = {
       sub: userId,
       email,
@@ -85,9 +88,18 @@ export class AuthService {
       expiresIn: '120m',
       secret: secret,
     });
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    delete user.hash;
+    if (!user) {
+      throw new NotFoundException(`No user with id ${userId} found`);
+    }
     return {
       meaningful_msg: 'Signed in successfully',
       access_token: token,
+      user,
     };
   }
 }
