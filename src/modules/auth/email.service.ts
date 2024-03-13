@@ -14,8 +14,8 @@ export class EmailService {
       port: 465,
       secure: true,
       auth: {
-        user: 'oldmovie391@gmail.com',
-        pass: 'dvni vjsv aygr dkfe',
+        user: process.env.TRANSPORT_USER,
+        pass: process.env.TRANSPORT_PASS,
       },
     });
   }
