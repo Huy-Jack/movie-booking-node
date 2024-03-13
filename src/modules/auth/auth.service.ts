@@ -11,6 +11,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import * as argon from 'argon2';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private emailService: EmailService,
   ) {}
 
   async signup(dto: AuthDto) {
@@ -101,5 +103,68 @@ export class AuthService {
       access_token: token,
       user,
     };
+  }
+
+  async resetPasswordRequest(email: string): Promise<{ email: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+
+    const token = await this.generateResetToken(user.id);
+
+    // Send email with reset token
+    await this.emailService.sendResetPasswordEmail(user.email, token);
+
+    return { email: user.email };
+  }
+
+  async resetPassword(
+    token: string,
+    password: string,
+  ): Promise<Omit<User, 'hash'>> {
+    try {
+      const secret = this.config.get('JWT_SECRET');
+      const { userId } = this.jwt.verify(token, { secret });
+
+      const userExists = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!userExists) {
+        throw new NotFoundException(`User with id ${userId} not found`);
+      }
+
+      const newPassword = await argon.hash(password);
+
+      const updatedUser = await this.prisma.user.update({
+        where: { id: userId },
+        data: { hash: newPassword },
+        select: {
+          id: true,
+          userName: true,
+          email: true,
+          phoneNumber: true,
+          dob: true,
+          firstName: true,
+          lastName: true,
+        },
+      });
+
+      // Omit the 'hash' property from the returned type
+      const { hash, ...userWithoutHash } = updatedUser as User;
+
+      return userWithoutHash;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+  }
+
+  private async generateResetToken(userId: string): Promise<string> {
+    const secret = this.config.get('JWT_SECRET');
+    return this.jwt.signAsync({ userId }, { expiresIn: '1h', secret });
   }
 }
