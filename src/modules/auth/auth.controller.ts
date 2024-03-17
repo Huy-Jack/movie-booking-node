@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Param, Post, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 
@@ -7,22 +7,35 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
-  signup(@Body() dto: AuthDto) {
-    return this.authService.signup(dto);
+  async signup(@Body() dto: AuthDto) {
+    const { verificationNumber } = await this.authService.signup(dto);
+    return { verificationSent: true, verificationNumber };
+  }
+
+  @Post('verify')
+  async verify(@Body() dto: { email: string, verificationNumber: string }) {
+    try {
+      const { email, verificationNumber } = dto;
+      // Call the verify method of the authService
+      const result = await this.authService.verify(email, verificationNumber);
+      return { success: true, message: result.meaningful_msg }; // Returning success message
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.UNAUTHORIZED); // Throwing an Unauthorized exception
+    }
   }
 
   @Post('signin')
-  signin(@Body() dto: { username: string; password: string }) {
-    return this.authService.signin(dto);
+  async signin(@Body() dto: { username: string; password: string }) {
+    return this.authService.signin(dto.username, dto.password);
   }
 
   @Post('reset-password/request')
-  resetPasswordRequest(@Body() dto: { email: string }) {
+  async resetPasswordRequest(@Body() dto: { email: string }) {
     return this.authService.resetPasswordRequest(dto.email);
   }
 
   @Post('reset-password/:token')
-  resetPassword(
+  async resetPassword(
     @Param('token') token: string,
     @Body() dto: { password: string },
   ) {
