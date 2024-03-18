@@ -14,17 +14,17 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class AuthService {
+  private storedVerificationNumber: string;
+  private verificationTimeout: any;
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
     private emailService: EmailService,
   ) {}
-  storedVerifNumber: string;
   async signup(dto: AuthDto) {
     // Generate and send verification number to email
     const { verificationNumber } = await this.sendVerificationNumber(dto.email);
-
     //generate password hash
     const hash = await argon.hash(dto.password);
     //save user to db
@@ -65,15 +65,23 @@ export class AuthService {
       email,
       verificationNumber.toString(),
     );
-    this.storedVerifNumber = verificationNumber.toString();
+    this.verificationTimeout = setTimeout(async () => {
+      await this.prisma.user.delete({ where: { email: email } });
+      throw new UnauthorizedException('Verification timed out');
+    }, 60000);
+
+    this.storedVerificationNumber = verificationNumber.toString();
+
     return { verificationNumber: verificationNumber.toString() };
   }
+
   async verify(email: string, verificationNumber: string) {
-    if (this.storedVerifNumber !== verificationNumber) {
+    if (this.storedVerificationNumber !== verificationNumber) {
+      clearTimeout(this.verificationTimeout);
       await this.prisma.user.delete({ where: { email } });
       throw new UnauthorizedException('Invalid verification number');
     }
-
+    clearTimeout(this.verificationTimeout);
     return { meaningful_msg: 'User verified successfully' };
   }
 
